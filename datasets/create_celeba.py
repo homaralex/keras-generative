@@ -8,6 +8,7 @@ import h5py
 
 import requests
 from PIL import Image
+from tqdm import tqdm
 
 google_drive_prefix = "https://docs.google.com/uc?export=download"
 image_url = 'https://drive.google.com/open?id=0B7EVK8r0v71pZjFTYXZWM3FlRnM'
@@ -107,10 +108,13 @@ def main():
             image_data[i] = image
             print('%d / %d' % (i + 1, num_images), end='\r', flush=True)
 
+    image_data = np.asarray(image_data, 'float32') / 255.
+    image_data = image_data * 2.0 - 1.0
+
     # Create HDF5 file
     h5 = h5py.File(outfile, 'w')
     string_dt = h5py.special_dtype(vlen=str)
-    dset = h5.create_dataset('images', data=image_data, dtype='uint8')
+    dset = h5.create_dataset('images', data=image_data, dtype='float32')
     dset = h5.create_dataset('label_names', data=label_names, dtype=string_dt)
     dset = h5.create_dataset('labels', data=labels, dtype='uint8')
 
